@@ -1,16 +1,12 @@
 # Wireless Network Data Collection and Analysis System
 
-โปรเจคนี้เป็นระบบสำหรับ **เก็บข้อมูลเครือข่ายไร้สาย (Wi-Fi)**  
-โดยใช้ **Mini PC** ทำหน้าที่เป็นเครื่อง **Wi-Fi Monitor Mode Sniffer**  
-เพื่อดักจับ packet จากอากาศ และบันทึกข้อมูลออกมาในรูปแบบไฟล์ **CSV**  
-สำหรับนำไปวิเคราะห์ต่อ เช่น monitoring, analysis หรือ machine learning
+โปรเจคนี้เป็นระบบสำหรับ **เก็บข้อมูลเครือข่ายไร้สาย (Wi-Fi)**  โดยใช้ **Mini PC** ทำหน้าที่เป็นเครื่อง **Wi-Fi Monitor Mode Sniffer**  เพื่อดักจับ packet จากอากาศ และบันทึกข้อมูลออกมาในรูปแบบไฟล์ **CSV**  สำหรับนำไปวิเคราะห์ต่อ เช่น monitoring, analysis หรือ machine learning
 
 ---
 
 ## Project Overview
 
-ระบบนี้ถูกออกแบบมาเพื่อรันบน **Mini PC (Ubuntu Server)**  
-ที่ติดตั้ง **USB Wi-Fi Adapter ซึ่งรองรับ Monitor Mode**
+ระบบนี้ถูกออกแบบมาเพื่อรันบน **Mini PC (Ubuntu Server)**  ที่ติดตั้ง **USB Wi-Fi Adapter ซึ่งรองรับ Monitor Mode**
 
 Mini PC จะทำหน้าที่:
 - ดักจับ Wi-Fi packet จากอากาศ (ไม่ต้องเชื่อมต่อ AP)
