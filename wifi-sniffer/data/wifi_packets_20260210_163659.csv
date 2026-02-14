@@ -1,1 +1,0 @@
-timestamp,channel,freq,type,subtype,src_mac,dst_mac,bssid,ssid,rssi,noise,antenna,data_rate,mcs,frame_len,sequence,retry,to_ds,from_ds,qos_tid
