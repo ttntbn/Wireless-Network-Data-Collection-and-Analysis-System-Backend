@@ -18,9 +18,11 @@ setup_interface(INTERFACE, logger)
 
 # -------- CSV --------
 ts = time.strftime("%Y%m%d_%H%M%S")
-CSV_FILE = f"../data/anomaly_wifi_packets_{ts}.csv"
-
+CSV_FILE = f"../data/manual_wifi_packets_{ts}.csv"
 os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
+
+file_is_empty = not os.path.exists(CSV_FILE) or os.path.getsize(CSV_FILE) == 0
+
 csvfile = open(CSV_FILE, "a", newline="", encoding="utf-8")
 writer = csv.writer(csvfile)
 

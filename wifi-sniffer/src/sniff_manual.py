@@ -4,7 +4,7 @@ import csv, os, time, signal, sys
 from logger_config import setup_logger
 from interface_manager import setup_interface
 from channel_hopper import ChannelHopper
-from packet_parser import handle_packet
+from packet_parser import handle_packet, AWID_HEADERS
 
 INTERFACE = "wlx1cbfce71ebe7"
 CHANNELS = [1,6,11,36,40,44,48]
@@ -18,11 +18,17 @@ setup_interface(INTERFACE, logger)
 
 ts = time.strftime("%Y%m%d_%H%M%S")
 CSV_FILE = f"../data/manual_wifi_packets_{ts}.csv"
-
 os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
+
+file_is_empty = not os.path.exists(CSV_FILE) or os.path.getsize(CSV_FILE) == 0
+
 csvfile = open(CSV_FILE, "a", newline="", encoding="utf-8")
 writer = csv.writer(csvfile)
 
+if file_is_empty:
+    writer.writerow(AWID_HEADERS)
+    csvfile.flush() 
+    
 hopper = ChannelHopper(INTERFACE, CHANNELS, HOP_INTERVAL, logger)
 hopper.start()
 
