@@ -109,7 +109,84 @@ AWID_HEADERS = [
 "class"
 ]
 
+def parse_capabilities(pkt, data):
 
+    if not pkt.haslayer(Dot11Beacon):
+        return
+
+    beacon = pkt[Dot11Beacon]
+
+    cap = getattr(beacon, "cap", 0)
+
+    # 16-bit capability field
+    data["wlan_mgt.fixed.capabilities.ess"] = 1 if cap & 0x0001 else 0
+    data["wlan_mgt.fixed.capabilities.ibss"] = 1 if cap & 0x0002 else 0
+    data["wlan_mgt.fixed.capabilities.cfpoll.ap"] = 1 if cap & 0x0004 else 0
+    data["wlan_mgt.fixed.capabilities.privacy"] = 1 if cap & 0x0010 else 0
+    data["wlan_mgt.fixed.capabilities.preamble"] = 1 if cap & 0x0020 else 0
+    data["wlan_mgt.fixed.capabilities.pbcc"] = 1 if cap & 0x0040 else 0
+    data["wlan_mgt.fixed.capabilities.agility"] = 1 if cap & 0x0080 else 0
+    data["wlan_mgt.fixed.capabilities.spec_man"] = 1 if cap & 0x0100 else 0
+    data["wlan_mgt.fixed.capabilities.short_slot_time"] = 1 if cap & 0x0400 else 0
+    data["wlan_mgt.fixed.capabilities.apsd"] = 1 if cap & 0x0800 else 0
+    data["wlan_mgt.fixed.capabilities.radio_measurement"] = 1 if cap & 0x1000 else 0
+    data["wlan_mgt.fixed.capabilities.dsss_ofdm"] = 1 if cap & 0x2000 else 0
+    data["wlan_mgt.fixed.capabilities.del_blk_ack"] = 1 if cap & 0x4000 else 0
+    data["wlan_mgt.fixed.capabilities.imm_blk_ack"] = 1 if cap & 0x8000 else 0
+
+def parse_rsn(pkt, data):
+
+    if not pkt.haslayer(Dot11Elt):
+        return
+
+    elt = pkt.getlayer(Dot11Elt)
+
+    while elt:
+
+        if elt.ID == 48:  # RSN IE
+
+            rsn = elt.info
+
+            try:
+
+                # Version
+                data["wlan_mgt.rsn.version"] = int.from_bytes(rsn[0:2], "little")
+
+                # Group Cipher Suite
+                data["wlan_mgt.rsn.gcs.type"] = rsn[5]
+
+                # Pairwise Cipher Count
+                pairwise_count = int.from_bytes(rsn[6:8], "little")
+                data["wlan_mgt.rsn.pcs.count"] = pairwise_count
+
+                pos = 8 + pairwise_count * 4
+
+                # AKM count
+                akm_count = int.from_bytes(rsn[pos:pos+2], "little")
+                data["wlan_mgt.rsn.akms.count"] = akm_count
+
+                pos += 2
+
+                if akm_count > 0:
+                    data["wlan_mgt.rsn.akms.type"] = rsn[pos+3]
+
+                pos += akm_count * 4
+
+                # RSN Capabilities
+                cap = int.from_bytes(rsn[pos:pos+2], "little")
+
+                data["wlan_mgt.rsn.capabilities.preauth"] = 1 if cap & 0x01 else 0
+                data["wlan_mgt.rsn.capabilities.no_pairwise"] = 1 if cap & 0x02 else 0
+                data["wlan_mgt.rsn.capabilities.ptksa_replay_counter"] = (cap >> 2) & 0x03
+                data["wlan_mgt.rsn.capabilities.gtksa_replay_counter"] = (cap >> 4) & 0x03
+                data["wlan_mgt.rsn.capabilities.mfpr"] = 1 if cap & 0x40 else 0
+                data["wlan_mgt.rsn.capabilities.mfpc"] = 1 if cap & 0x80 else 0
+                data["wlan_mgt.rsn.capabilities.peerkey"] = 1 if cap & 0x200 else 0
+
+            except:
+                pass
+
+        elt = elt.payload.getlayer(Dot11Elt)
 # =========================
 # FRAME
 # =========================
@@ -260,12 +337,14 @@ def parse_data(pkt,data):
 
 def extract_awid_fields(pkt):
 
-    data={h:0 for h in AWID_HEADERS}
+    data = {h:0 for h in AWID_HEADERS}
 
     parse_frame(pkt,data)
+    parse_rsn(pkt,data)
     parse_radiotap(pkt,data)
     parse_wlan(pkt,data)
     parse_management(pkt,data)
+    parse_capabilities(pkt,data)
     parse_qos(pkt,data)
     parse_data(pkt,data)
 
